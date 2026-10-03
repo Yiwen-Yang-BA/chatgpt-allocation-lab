@@ -1,0 +1,17 @@
+{
+  "name": "chatgpt-allocation-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "在相同历史样本中比较少量资产的收益与风险，观察手动权重、等权和有限网格候选的差别。",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "dev": "node --watch --env-file-if-exists=.env server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check server.mjs && node --check project.mjs && node --check public/app.js"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="在相同历史样本中比较少量资产的收益与风险，观察手动权重、等权和有限网格候选的差别。"
+    />
+    <title>Allocation Lab · AI 小工具</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/data.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand"><span class="logo">A</span>Allocation Lab</div>
+        <div class="side-intro">
+          <div class="eyebrow">DATA & FINANCE STUDIO</div>
+          <div class="nav-item">组合配比实验</div>
+        </div>
+        <div class="side-note">
+          把一个想法，变成可以使用的结果。<br />轻量、专注，按你的节奏。
+        </div>
+        <div class="side-bottom">
+          <div class="eyebrow">CONNECTION</div>
+          <label
+            ><span class="sr-only" hidden>运行模式</span
+            ><select id="mode" aria-label="运行模式"></select
+          ></label>
+        </div>
+        <div class="side-footer">
+          DATA EDITION / 07<br />Built for a little more clarity.
+        </div>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <span class="crumb">我的工作台 &nbsp; / &nbsp; 组合配比实验</span
+          ><span class="top-meta"
+            ><i class="dot"></i><span id="connection">正在连接…</span></span
+          >
+        </header>
+        <section class="hero">
+          <div class="eyebrow">SAME DATA. DIFFERENT BALANCE.</div>
+          <h1>把权重，放进数据里比较。</h1>
+          <p class="description">
+            在相同历史样本中比较少量资产的收益与风险，观察手动权重、等权和有限网格候选的差别。
+          </p>
+        </section>
+        <section class="data-layout">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>资产与约束</h2>
+              <button id="sample" class="small">三资产示例</button>
+            </div>
+            <p class="source-note">人工构造数据 · 单一币种 · 不代表实际产品</p>
+            <form id="allocation-form">
+              <label
+                >对齐的收益矩阵<textarea
+                  id="csv"
+                  rows="12"
+                  maxlength="250000"
+                  required
+                  spellcheck="false"
+                  placeholder="date,AssetA,AssetB
+2025-01-31,0.01,0.02"
+                ></textarea></label
+              ><input
+                id="file"
+                type="file"
+                accept=".csv"
+                class="upload-input"
+                aria-label="导入资产收益CSV"
+              /><label style="margin-top: 16px"
+                >手动权重 · 按资产列顺序<input
+                  id="weights"
+                  value="0.4,0.35,0.25"
+                  required
+                  placeholder="0.5,0.5"
+              /></label>
+              <div class="wide-controls" style="grid-template-columns: 1fr 1fr">
+                <label
+                  >每年期数<select id="frequency">
+                    <option value="12">月度 · 12</option>
+                    <option value="252">交易日 · 252</option>
+                    <option value="52">周度 · 52</option>
+                  </select></label
+                ><label
+                  >年化无风险利率 %<input
+                    id="risk-free"
+                    type="number"
+                    value="2"
+                    min="-99"
+                    max="100"
+                    step="0.01"
+                    required
+                /></label>
+              </div>
+              <label
+                >网格步长<select id="step">
+                  <option value="0.1">10% · 较少候选</option>
+                  <option value="0.05">5% · 更细候选</option>
+                </select></label
+              ><button id="analyze" class="primary" style="margin-top: 18px">
+                比较组合 ↗
+              </button>
+            </form>
+            <div class="divider"></div>
+            <p class="hint">
+              权重总和为
+              1。收益列必须完整对齐；历史净值假设每期再平衡，不计交易费用。
+            </p>
+          </section>
+          <div>
+            <div id="metrics" class="metric-grid"></div>
+            <section class="panel data-panel">
+              <div class="result-title">
+                <h2>历史风险与收益均值</h2>
+                <span id="grid-label" class="chip">FINITE GRID</span>
+              </div>
+              <div id="scatter" class="chart-wrap">
+                <div class="empty">
+                  <div class="symbol">⋮</div>
+                  <h3>比较每一种配比</h3>
+                  <p>横轴为年化波动，纵轴为算术年化历史均值。</p>
+                </div>
+              </div>
+              <p class="hint">
+                散点是有限候选，不是精确有效前沿；历史均值不是收益承诺。
+              </p>
+            </section>
+            <section class="panel data-panel">
+              <h2>选中的组合</h2>
+              <div id="portfolio-buttons" class="toolbar"></div>
+              <div id="weights-chart" class="chart-wrap"></div>
+              <div id="portfolio-table" class="table-wrap"></div>
+            </section>
+            <section class="panel data-panel">
+              <h2>固定权重历史净值</h2>
+              <div id="equity-chart" class="chart-wrap"></div>
+              <p class="hint">
+                从 1 开始，按每期组合收益复合；与算术年化均值使用不同口径。
+              </p>
+            </section>
+            <section class="panel data-panel">
+              <h2>样本协方差与解读</h2>
+              <div id="covariance" class="table-wrap"></div>
+              <p id="warnings" class="warning-list"></p>
+              <div id="meta" class="meta"></div>
+              <div id="insight" class="insight">先核对口径，再比较权重。</div>
+              <div id="exports" class="toolbar" hidden>
+                <button id="export-html" class="primary">导出 HTML 报告</button
+                ><button id="export-csv" class="small">导出权重 CSV</button
+                ><button id="export-json" class="small">导出 JSON</button>
+              </div>
+            </section>
+          </div>
+        </section>
+        <footer class="footer">
+          <span>Allocation Lab · 独立轻量实现</span
+          ><span
+            >灵感来自
+            <a
+              href="https://github.com/PyPortfolio/PyPortfolioOpt"
+              target="_blank"
+              rel="noopener noreferrer"
+              >PyPortfolio/PyPortfolioOpt</a
+            >
+            &nbsp; / &nbsp; 07 OF 10</span
+          >
+        </footer>
+      </main>
+    </div>
+    <div id="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
